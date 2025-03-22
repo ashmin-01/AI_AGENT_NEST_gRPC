@@ -1,98 +1,94 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# AI Response Evaluation Service
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Overview
+This project is a **NestJS-based AI response evaluation service** that interacts with OpenAI's API to assess the quality of AI-generated responses. It evaluates AI-generated messages based on multiple criteria, such as faithfulness, completeness, conciseness, relevance, and tone.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+The service takes in conversation history, AI responses, company-specific data, and an ideal response to generate a structured evaluation report.
 
-## Description
+## Features
+- Uses **OpenAI's GPT models** (default: `gpt-3.5-turbo`) for evaluation.
+- Assesses AI responses based on:
+  - **Faithfulness** (accuracy based on company data)
+  - **Completeness** (coverage of key details)
+  - **Conciseness** (clarity and brevity)
+  - **Relevance** (response alignment with the query)
+  - **Tone & Politeness** (maintains professional and friendly tone)
+- Provides structured JSON output with scores and reasoning.
+- Built with **NestJS** for a modular and scalable backend architecture.
+- Supports **gRPC** for efficient communication.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Prerequisites
+Ensure you have the following installed:
+- **Node.js** (v16+ recommended)
+- **npm** (v8+ recommended)
+- **NestJS CLI** (optional but recommended):
+  ```bash
+  npm install -g @nestjs/cli
+  ```
+- **OpenAI API Key** (stored in `OPENAI_API_KEY` environment variable)
 
-## Project setup
-
+## Installation
+Clone the repository and install dependencies:
 ```bash
+$ git clone <repository_url>
+$ cd <project_directory>
 $ npm install
 ```
 
-## Compile and run the project
+## Environment Configuration
+Create a `.env` file in the root directory and add your OpenAI API key:
+```env
+OPENAI_API_KEY=your_openai_api_key
+```
 
+## Running the Service
+### Development Mode
 ```bash
-# development
 $ npm run start
-
-# watch mode
+```
+### Watch Mode (Hot Reloading)
+```bash
 $ npm run start:dev
-
-# production mode
+```
+### Production Mode
+```bash
 $ npm run start:prod
 ```
 
-## Run tests
-
+## Testing
+### Unit Tests
 ```bash
-# unit tests
 $ npm run test
-
-# e2e tests
+```
+### End-to-End (e2e) Tests
+```bash
 $ npm run test:e2e
-
-# test coverage
+```
+### Test Coverage
+```bash
 $ npm run test:cov
 ```
 
+## Using gRPC with Postman
+To test the gRPC service using **Postman**, follow these steps:
+
+1. Open **Postman** and switch to the **gRPC** tab.
+2. Enter the **gRPC server URL** (e.g., `localhost:50051`).
+3. Select the method `EvaluateResponse`.
+4. In the **body**, provide a request similar to:
+    ```json
+    {
+      "messageHistory": "Customer: What are your refund policies? AI: We offer a 30-day return policy.",
+      "agentAnswer": "We have a flexible return policy that allows returns within 30 days.",
+      "companyData": "Our policy states that returns are accepted within 30 days with a receipt.",
+      "idealAnswer": "Our refund policy allows customers to return items within 30 days with proof of purchase.",
+      "model": "gpt-3.5-turbo"
+    }
+    ```
+5. Send the request and view the structured evaluation response.
+
 ## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Refer to the [NestJS deployment guide](https://docs.nestjs.com/deployment) for best practices.
 
 ## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+This project is **MIT licensed**.
