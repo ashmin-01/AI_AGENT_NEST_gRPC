@@ -10,10 +10,22 @@ import { Injectable } from '@nestjs/common';
 export class OpenAIService {
   private openai: OpenAI;
 
+  private static isLogged = false;
+
   constructor() {
-    this.openai = new OpenAI({
-        apiKey: process.env.OPENAI_API_KEY || '',
-    });
+    const apiKey = process.env.OPENAI_API_KEY;
+    
+    if (!OpenAIService.isLogged) {
+     /* console.log('OpenAI API Key:', apiKey ? '✔️ Key Found' : '❌ Key Missing');
+      console.log(apiKey);*/
+      OpenAIService.isLogged = true;
+    }
+  
+    if (!apiKey) {
+      throw new Error('Missing OpenAI API Key. Please set OPENAI_API_KEY in environment variables.');
+    }
+  
+    this.openai = new OpenAI({ apiKey });
   }
 
   async evaluateResponse(
@@ -22,7 +34,7 @@ export class OpenAIService {
     companyData: string,
     idealAnswer: string,
     model: string = 'gpt-3.5-turbo',
-  ): Promise<string> { 
+  ): Promise<string> {
     const prompt = `
 You are an AI evaluator that assesses the quality of an AI agent's response based on multiple evaluation metrics.
 Given the conversation history, the AI agent's response, the company's data, and the ideal human response, evaluate the response using the following criteria:
@@ -71,15 +83,39 @@ ${idealAnswer}
           },
           { role: 'user', content: prompt },
         ],
-        temperature: 0, 
-        max_tokens: 4000, 
+        temperature: 0,
+        max_tokens: 4000,
       });
 
-      
-      return response.choices?.[0]?.message?.content || 'Error Generating The Response. Please Try Again.';
+      if (!response.choices?.[0]?.message?.content) {
+        throw new Error('Empty response from OpenAI API');
+      }
+      const result = response.choices[0].message.content;
+
+      if (!result.trim()) {
+        throw new Error('Received empty evaluation result from OpenAI API');
+      }
+  
+      return result;
     } catch (error) {
-      console.error('Error calling OpenAI API:', error);
-      return 'Error Generating The Response. Please Try Again.';
+      if (error.message.includes('Country, region, or territory not supported')) {
+        console.error('Error: OpenAI API is not supported in your region.');
+        return JSON.stringify({
+          error: 'OpenAI API is not supported in your region. Please check OpenAI’s availability in your area.',
+        });
+      }
+      
+      if (error.message.includes('You exceeded your current quota')) {
+        console.error('Error: You have exceeded your OpenAI API usage quota.');
+        return JSON.stringify({
+          error: 'You have exceeded your current API usage quota. Please check your plan and billing details on OpenAI’s platform.',
+        });
+      }
+    
+      console.error('Error calling OpenAI API:', error.message || error);
+      return JSON.stringify({
+        error: 'Failed to generate evaluation. Please check API key and request format.',
+      });
     }
   }
 }

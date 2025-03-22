@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 import { OpenAIService } from './openai.service';
@@ -14,15 +15,20 @@ export class OpenAIController {
     idealAnswer: string;
     model?: string;
   }): Promise<{ response: string }> {
-    const { messageHistory, agentAnswer, companyData, idealAnswer, model } =
-      data;
-    const result = await this.openAIService.evaluateResponse(
-      messageHistory,
-      agentAnswer,
-      companyData,
-      idealAnswer,
-      model,
-    );
-    return { response: result };
+    try {
+      const { messageHistory, agentAnswer, companyData, idealAnswer, model } =
+        data;
+      const result = await this.openAIService.evaluateResponse(
+        messageHistory,
+        agentAnswer,
+        companyData,
+        idealAnswer,
+        model,
+      );
+      return { response: result };
+    } catch (error) {
+      console.error('Error in EvaluateResponse:', error.message || error);
+      throw new Error('Error processing the evaluation request');
+    }
   }
 }

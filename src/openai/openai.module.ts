@@ -1,10 +1,11 @@
 /* eslint-disable prettier/prettier */
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { OpenAIController } from './openai.controller';
 import { OpenAIService } from './openai.service';
-
+@Global()
 @Module({
     controllers: [OpenAIController],
-    providers: [OpenAIService]
+    providers: [OpenAIService],
+    exports: [OpenAIService]
 })
-export class OpenaiModule {}
+export class OpenAIModule {}
