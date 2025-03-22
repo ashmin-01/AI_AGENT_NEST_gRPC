@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package openai;
+
+service OpenAIService {
+  rpc EvaluateResponse (EvaluateRequest) returns (EvaluateResponse);
+}
+
+message EvaluateRequest {
+  string messageHistory = 1;
+  string agentAnswer = 2;
+  string companyData = 3;
+  string idealAnswer = 4;
+  string model = 5; 
+}
+
+message EvaluateResponse {
+  int32 faithfulness = 1;
+  int32 completeness = 2;
+  int32 conciseness = 3;
+  int32 relevance = 4;
+  int32 tone_politeness = 5;
+  string reasoning = 6;
+}
