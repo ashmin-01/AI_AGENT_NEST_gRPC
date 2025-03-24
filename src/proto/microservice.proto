@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package microservice;
+
+service Microservice {
+  rpc EvaluateResponseRubric(EvaluateResponseRubricRequest) returns (EvaluateResponseRubricResponse);
+  rpc EvaluateResponseIdeal(EvaluateResponseIdealRequest) returns (EvaluateResponseIdealResponse);
+}
+
+message EvaluateResponseRubricRequest {
+  repeated ChatMessage messageHistory = 1;
+  map<string, string> companyData = 2;
+  string agentAnswer = 3;
+}
+
+message EvaluateResponseRubricResponse {
+  repeated RubricMetric metrices = 1;
+}
+
+message EvaluateResponseIdealRequest {
+  repeated ChatMessage messageHistory = 1;
+  string agentAnswer = 2;
+  string idealAnswer = 3;
+}
+
+message EvaluateResponseIdealResponse {
+  repeated IdealCase cases = 1;
+}
+
+message ChatMessage {
+  string role = 1; 
+  string content = 2;
+}
+
+message RubricMetric {
+  string metric = 1;  
+  int32 score = 2;    
+  string reason = 3;  
+}
+
+message IdealCase {
+  string case = 1;    
+  int32 score = 2;   
+  string reason = 3;  
+}

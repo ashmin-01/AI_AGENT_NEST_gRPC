@@ -1,7 +1,17 @@
+import { config } from 'dotenv';
+import { resolve } from 'path';
+
+// Load `.env` from the project directory and override system variables
+config({ path: resolve(__dirname, '../.env'), override: true });
+
+console.log(
+  'Loaded OpenAI API Key:',
+  process.env.OPENAI_API_KEY ? '✔️ Key Found' : '❌ Key Missing',
+);
+
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { AppModule } from './app.module';
-import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
@@ -9,8 +19,8 @@ async function bootstrap() {
     {
       transport: Transport.GRPC,
       options: {
-        package: 'openai',
-        protoPath: 'src/proto/openai.proto',
+        package: 'microservice',
+        protoPath: 'src/proto/microservice.proto',
         url: 'localhost:5000',
       },
     },

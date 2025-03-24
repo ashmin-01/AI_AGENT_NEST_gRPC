@@ -1,14 +1,13 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { OpenAIController } from './openai/openai.controller';
-import { OpenAIService } from './openai/openai.service';
-import { OpenAIModule } from './openai/openai.module';
 import { ConfigModule } from '@nestjs/config';
+import { MicroserviceController } from './microservice/microservice.controller';
+import { MicroserviceModule } from './microservice/microservice.module';
 
 @Module({
-  imports: [OpenAIModule, ConfigModule.forRoot()], 
-  controllers: [AppController, OpenAIController],
-  providers: [AppService, OpenAIService],
+  imports: [ConfigModule.forRoot(), MicroserviceModule], 
+  controllers: [AppController, MicroserviceController],
+  providers: [AppService],
 })
 export class AppModule {}
