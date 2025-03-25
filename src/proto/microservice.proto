@@ -24,7 +24,8 @@ message EvaluateResponseIdealRequest {
 }
 
 message EvaluateResponseIdealResponse {
-  repeated IdealCase cases = 1;
+  string choice = 1;  // A, B, C, D, or E
+  string reason = 2;  // Explanation for the choice
 }
 
 message ChatMessage {
@@ -35,11 +36,5 @@ message ChatMessage {
 message RubricMetric {
   string metric = 1;  
   int32 score = 2;    
-  string reason = 3;  
-}
-
-message IdealCase {
-  string case = 1;    
-  int32 score = 2;   
   string reason = 3;  
 }

@@ -14,16 +14,13 @@ export class MicroserviceController {
     agentAnswer: string;
   }): Promise<object> {
     const { messageHistory, companyData, agentAnswer } = data;
-    const metrics = await this.microserviceService.evaluateResponseRubric(
+    return await this.microserviceService.evaluateResponseRubric(
       messageHistory,
       companyData,
       agentAnswer,
     );
-
-    return { metrices: metrics };
   }
-
- 
+  
   @GrpcMethod('Microservice', 'EvaluateResponseIdeal')
   async evaluateResponseIdeal(data: {
     messageHistory: { role: string; content: string }[];
@@ -31,12 +28,15 @@ export class MicroserviceController {
     idealAnswer: string;
   }): Promise<object> {
     const { messageHistory, agentAnswer, idealAnswer } = data;
-    const cases = await this.microserviceService.evaluateResponseIdeal(
+  
+    const evaluation = await this.microserviceService.evaluateResponseIdeal(
       messageHistory,
       agentAnswer,
       idealAnswer,
     );
-
-    return { cases };
-  }
+  
+    console.log("Evaluation result from controller:", evaluation);
+  
+    return evaluation; 
+  }  
 }
