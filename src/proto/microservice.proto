@@ -5,6 +5,7 @@ package microservice;
 service Microservice {
   rpc EvaluateResponseRubric(EvaluateResponseRubricRequest) returns (EvaluateResponseRubricResponse);
   rpc EvaluateResponseIdeal(EvaluateResponseIdealRequest) returns (EvaluateResponseIdealResponse);
+  rpc EvaluateResponseQAG(EvaluateResponseQAGRequest) returns(EvaluateResponseQAGResponse);
 }
 
 message EvaluateResponseRubricRequest {
@@ -26,6 +27,24 @@ message EvaluateResponseIdealRequest {
 message EvaluateResponseIdealResponse {
   string choice = 1;  // A, B, C, D, or E
   string reason = 2;  // Explanation for the choice
+}
+
+message EvaluateResponseQAGRequest {
+  repeated ChatMessage messageHistory = 1;
+  map<string, string> companyData = 2;
+  string agentAnswer = 3;
+}
+
+message EvaluateResponseQAGResponse {
+  repeated GeneratedQuestionAnalysis questions = 1;
+}
+
+message GeneratedQuestionAnalysis {
+  string question = 1;
+  int32 accuracyScore = 2;
+  int32 completenessScore = 3;
+  int32 relevanceScore = 4;
+  string reasoning = 5;  // Explanation for the scores
 }
 
 message ChatMessage {

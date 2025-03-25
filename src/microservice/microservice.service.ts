@@ -62,10 +62,10 @@ Assign a score from 0 to 100 for each of the following metrics, and explain your
     Ideal answer: {delimiter}{idealAnswer}{delimiter}`;
 
   }
-// ** -- set up an instance of chat comment -- **
+// ** -- Handles interaction with the ChatOpenAI model, sending a structured conversation history and receiving a formatted AI-generated response. -- **
   async chat(
     messages: { role: string; content: string }[],
-    model: string = 'gpt-3.5-turbo',
+    model: string = 'gpt-4o-mini',
     temperature: number = 0,
     maxTokens: number = 4000,
     responseFormat?: any
@@ -123,7 +123,7 @@ Assign a score from 0 to 100 for each of the following metrics, and explain your
               type: 'object',
               properties: {
                 metric: { type: 'string' },
-                score: { type: 'integer' },
+                score: { type: 'integer', minimum: 0, maximum: 100},
                 reason: { type: 'string' },
               },
               required: ['metric', 'score', 'reason'],
@@ -135,10 +135,10 @@ Assign a score from 0 to 100 for each of the following metrics, and explain your
     };
 
     try {
-      const response = await this.chat(messages, 'gpt-3.5-turbo', 0, 4000, responseFormat);
+      const response = await this.chat(messages, 'gpt-4o-mini', 0, 4000, responseFormat);
       return response;
     } catch (error) {
-      console.error('Error during evaluation:', error);
+      console.error('Error during Rubric evaluation:', error);
       return { error: 'Failed to generate evaluation. Please check API key and request format.' };
     }
   }
@@ -173,12 +173,77 @@ Assign a score from 0 to 100 for each of the following metrics, and explain your
     };
     
     try {
-      const response = await this.chat(messages, 'gpt-3.5-turbo', 0, 4000, responseFormat);
+      const response = await this.chat(messages, 'gpt-4o-mini', 0, 4000, responseFormat);
       console.log("response log (ideal) from service : ", response)
       return response;
     } catch (error) {
-      console.error('Error during evaluation:', error);
+      console.error('Error during Ideal evaluation:', error);
       return { error: 'Failed to generate evaluation. Please check API key and request format.' };
     }
   }
+
+  // ** --- Evaluate Response Using Question-Answer Generation (QAG) --- ** 
+async evaluateResponseQAG(
+  messageHistory: { role: string; content: string }[],
+  companyData: Record<string, string>,
+  agentAnswer: string
+): Promise<object> {
+  const delimiter = '####';
+  const systemMessageQAG = `
+You are an assistant that evaluates how well the customer service agent's answer aligns with the extracted facts.  
+You will be given the conversation history, the company data (information the AI agent is allowed to use), and the AI agent's response.  
+
+Your task is to generate between 3 to 7 key questions based on the conversation and check if the agent's response correctly answers them.  
+
+For each generated question, you must assign a score from 0 to 100 based on:  
+- Accuracy: Does the response correctly answer the generated question?  
+- Completeness: Does it address all key details?  
+- Relevance: Does it stay on topic?  
+
+Provide an explanation for the assigned scores.`;
+
+  const userMessage = `
+  Message History: ${delimiter}${JSON.stringify(messageHistory)}${delimiter}
+  Company Data: ${delimiter}${JSON.stringify(companyData)}${delimiter}
+  Agent Answer: ${delimiter}${agentAnswer}${delimiter}
+  `;
+
+  const messages = [
+    { role: 'system', content: systemMessageQAG },
+    { role: 'user', content: userMessage },
+  ];
+
+  const responseFormat = {
+    type: 'json_object',
+    schema: {
+      type: 'object',
+      properties: {
+        questions: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              question: { type: 'string' },
+              accuracyScore: { type: 'integer', minimum: 0, maximum: 100 },
+              completenessScore: { type: 'integer', minimum: 0, maximum: 100 },
+              relevanceScore: { type: 'integer', minimum: 0, maximum: 100 },
+              reasoning: { type: 'string' },
+            },
+            required: ['question', 'accuracyScore', 'completenessScore', 'relevanceScore', 'reasoning'],
+          },
+        },
+      },
+      required: ['questions'],
+    },
+  };
+
+  try {
+    const response = await this.chat(messages, 'gpt-4o-mini', 0, 4000, responseFormat);
+    return response;
+  } catch (error) {
+    console.error('Error during QAG evaluation:', error);
+    return { error: 'Failed to generate evaluation. Please check API key and request format.' };
+  }
+}
+
 }

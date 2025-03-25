@@ -38,5 +38,21 @@ export class MicroserviceController {
     console.log("Evaluation result from controller:", evaluation);
   
     return evaluation; 
-  }  
+  }
+
+  @GrpcMethod('Microservice', 'EvaluateResponseQAG')
+  async evaluateResponseQAG(data: {
+    messageHistory: {role: string; content: string}[];
+    companyData: Record<string, string>;
+    agentAnswer: string;
+  }): Promise<object> {
+    const { messageHistory, companyData, agentAnswer} = data;
+    const response = await this.microserviceService.evaluateResponseQAG(
+      messageHistory,
+      companyData,
+      agentAnswer,
+    );
+    console.log("QAG eval from controller:", response);
+    return response;
+  }
 }
